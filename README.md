@@ -1,3 +1,3 @@
-# ToDo Application «Web-Приложение для усправления списком задач»
+# ToDo Application «Web-Приложение для управления списком задач»
 ---
 React.js
