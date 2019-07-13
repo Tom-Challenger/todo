@@ -22,8 +22,62 @@ export default class App extends Component {
         this.createTodoItem('Have a lunch')
       ],
 
-      term: ''
+      term: '',
+
+      group: 'all'
     };
+
+    this.deteleItem = (id) => {
+      this.setState((state) => {
+        const idx = state.todoData.findIndex((el) => el.id === id);
+
+        // [a, b, c, d, e]
+        // [a, b,    d, e]
+        const newArray = [ 
+          ...state.todoData.slice(0, idx),
+          ...state.todoData.slice(idx + 1)
+        ];
+
+        return {
+          todoData: newArray
+        }
+      });
+    }
+
+    this.addItem = (text) => {
+      const newItem = this.createTodoItem(text);
+
+      this.setState((state) => {
+        const newArray = [
+          ...state.todoData,
+          newItem
+        ];
+
+        return {
+          todoData: newArray
+        };
+      });
+    }
+
+    this.onToggleImportant = (id) => {
+      this.setState(({todoData}) => {
+        return {todoData: this.toggleProperty(todoData, id, 'important')}
+      });
+    }
+
+    this.onToggleDone = (id) => {
+      this.setState(({todoData}) => {
+        return {todoData: this.toggleProperty(todoData, id, 'done')}
+      });
+    }
+
+    this.onSearchChange = (term) => {
+      this.setState({term});
+    }
+
+    this.onFiltetChange = (group) => {
+      this.setState({group});
+    }
   }
 
   createTodoItem(label) {
@@ -35,38 +89,6 @@ export default class App extends Component {
     }
   }
   
-  deteleItem = (id) => {
-    this.setState((state) => {
-      const idx = state.todoData.findIndex((el) => el.id === id);
-
-      // [a, b, c, d, e]
-      // [a, b,    d, e]
-      const newArray = [ 
-        ...state.todoData.slice(0, idx),
-        ...state.todoData.slice(idx + 1)
-      ];
-
-      return {
-        todoData: newArray
-      }
-    });
-  }
-
-  addItem = (text) => {
-    const newItem = this.createTodoItem(text);
-
-    this.setState((state) => {
-      const newArray = [
-        ...state.todoData,
-        newItem
-      ];
-
-      return {
-        todoData: newArray
-      };
-    });
-  }
-
   toggleProperty(arr, id, propName) {
     const idx = arr.findIndex((el) => el.id === id);
 
@@ -80,19 +102,7 @@ export default class App extends Component {
       ];
   }
 
-  onToggleImportant = (id) => {
-    this.setState(({todoData}) => {
-      return {todoData: this.toggleProperty(todoData, id, 'important')}
-    });
-  }
-
-  onToggleDone = (id) => {
-    this.setState(({todoData}) => {
-      return {todoData: this.toggleProperty(todoData, id, 'done')}
-    });
-  }
-
-  setProperty(arr, id, propName, propValue) {
+/*  setProperty(arr, id, propName, propValue) {
     const idx = arr.findIndex((el) => el.id === id);
 
     const oldItem = arr[idx];
@@ -103,11 +113,7 @@ export default class App extends Component {
       newItem,
       ...arr.slice(idx+1)
       ];
-  }
-
-  onSearchChange = (term) => {
-    this.setState({term});
-  }
+  }*/
 
   search(items, term) {
     if (term.length === 0) {
@@ -121,10 +127,36 @@ export default class App extends Component {
     });
   }
 
+  filter(items, group) {
+    switch(group){
+      case 'all': 
+        return items;
+      case 'active': 
+        return items.filter((item) => !item.done);
+      case 'done':
+        return items.filter((item) => item.done);
+      default:
+        return items;
+    }
+    /* old version
+    if (group === 'all') {
+     return items;
+    }
+
+    if (group === 'done') {
+     return items.filter((item) => item.done);
+    }
+    else {
+      return items.filter((item) => !item.done);
+    }*/
+  }
+
   render() {
 
-    const {todoData, term} = this.state;
-    const visibyleItems = this.search(todoData, term);
+    const {todoData, term, group} = this.state;
+    const visibyleItems = this.search(
+      this.filter(todoData, group), term);
+
     const doneCount = todoData.filter((el) => el.done).length;
     const todoCount = todoData.length - doneCount;
 
@@ -133,8 +165,10 @@ export default class App extends Component {
         <AppHeader toDo={todoCount} done={doneCount} />
         <div className="top-panel d-flex">
           <SearchPanel 
-            onSearchChange={this.onSearchChange}/>
-          <ItemStatusFilter />
+            onSearchChange={this.onSearchChange} />
+          <ItemStatusFilter
+            group={group} 
+            onFiltetChange={this.onFiltetChange} />
         </div>
 
         <TodoList 

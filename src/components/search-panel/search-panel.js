@@ -10,12 +10,12 @@ export default class SearchPanel extends Component {
 		this.state = {
 			term: ''
 		};
-	};
 
-	onSearchChange = (e) => {
-		const term = e.target.value;
-		this.setState({term});
-		this.props.onSearchChange(term);
+		this.onSearchChange = (e) => {
+			const term = e.target.value;
+			this.setState({term});
+			this.props.onSearchChange(term);
+		};
 	};
 
 	render() {
